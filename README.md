@@ -6,7 +6,7 @@ SandboxForge provisions throwaway Docker environments so unproven code can be te
 
 Testing a script you don't trust usually means running it on your real system and hoping, or hand-rolling a container and cleaning up after it every time. SandboxForge collapses that to one command: create, work, destroy.
 
-Sandboxes are built from profiles — reusable environment definitions you modify to fit whatever needs testing. Every action writes a timestamped entry to an audit log.
+Sandboxes are built from a `Dockerfile` at the project root — edit it to fit whatever needs testing. Reusable profiles and an audit log are planned; see Status.
 
 Third in an operator trilogy alongside [StormForge](https://github.com/StoneyLee63/stormforge). Built phase by phase toward v1.
 
@@ -14,13 +14,13 @@ Third in an operator trilogy alongside [StormForge](https://github.com/StoneyLee
 
 ## Status
 
-**Phase 1 of 5.** The CLI routes its subcommands; container operations are next.
+**Phase 2 of 5.** `create` builds the image and starts a named sandbox. `enter` and `destroy` are routed but still stubs.
 
 | Phase | Capability | State |
 |-------|-----------|-------|
 | 0 | Container engine provisioned and verified | Done |
 | 1 | CLI skeleton, subcommand dispatch | Done |
-| 2 | `create` — build image, start container | In progress |
+| 2 | `create` — build image, start container | Done |
 | 3 | `enter` — shell into a running sandbox | Planned |
 | 4 | `destroy` — clean teardown | Planned |
 | 5 | Audit log of every lifecycle action | Planned |
@@ -45,18 +45,32 @@ docker run hello-world
 ## Usage
 
 ```bash
-sandboxforge create <profile> [name]   # provision a sandbox from a profile
+sandboxforge create <name>   # build image if needed, start a named sandbox
 sandboxforge enter <name>              # open a shell inside it
 sandboxforge destroy <name>            # tear it down
 ```
 
-Leaving a sandbox is just `exit` — that closes the shell and returns you to the host. The sandbox keeps running until you destroy it.
+`enter` and `destroy` accept arguments and print a stub message — they don't operate on containers yet. Until `destroy` lands, tear a sandbox down with `docker rm -f <name>`.
 
 ---
 
 ## Profiles
 
-A profile is a directory under `profiles/` containing a `Dockerfile` that defines one kind of environment. Profiles are the extension point: to sandbox a different kind of work, write a new profile rather than modifying the tool.
+**Planned.** Today the tool reads one `Dockerfile` at the project root. Profiles will move that to `profiles/<name>/Dockerfile`, so sandboxing a different kind of work means writing a new profile rather than modifying the tool.
+
+---
+
+## Design notes
+
+`create` builds the image only when it isn't already present locally. Docker's build step contacts the registry to resolve the base image tag, so building unconditionally means `create` hangs or fails with no network — found offline, on the first real use. Skipping the build when the image already exists means a sandbox can be provisioned with no connectivity at all.
+
+The trade-off: editing the `Dockerfile` won't rebuild an image that already exists. Until a `rebuild` subcommand lands, drop it by hand:
+
+```bash
+docker image rm sandboxforge-base:latest
+```
+
+Both guard clauses — empty name, name already in use — run before any build or container work. Cheap checks first.
 
 ---
 
