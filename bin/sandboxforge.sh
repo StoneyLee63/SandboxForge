@@ -20,6 +20,23 @@ create_sandbox() {
     docker run -d --name "$name" "$image"
 }
 
+enter_sandbox() {
+    local name="$1"
+    if [[ -z "$name" ]]; then
+        echo "sandboxforge: enter requires a sandbox name" >&2
+        return 1
+    fi
+    if ! docker ps -a --format '{{.Names}}' | grep -qx "$name"; then
+        echo "sandboxforge: no sandbox named '$name'" >&2
+        return 1
+    fi
+    if ! docker ps --format '{{.Names}}' | grep -qx "$name"; then
+        echo "sandboxforge: sandbox '$name' exists but is stopped (docker start $name)" >&2
+        return 1
+    fi
+    docker exec -it "$name" bash
+}
+
 main() {
     local cmd="${1:-}"
     shift || true
@@ -29,7 +46,7 @@ main() {
             create_sandbox "${1:-}"
             ;;
         enter)
-            echo "[enter] would enter sandbox: ${1:-<none>}"
+            enter_sandbox "${1:-}"
             ;;
         destroy)
             echo "[destroy] would destroy sandbox: ${1:-<none>}"

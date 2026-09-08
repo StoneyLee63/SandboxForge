@@ -14,14 +14,14 @@ Third in an operator trilogy alongside [StormForge](https://github.com/StoneyLee
 
 ## Status
 
-**Phase 2 of 5.** `create` builds the image and starts a named sandbox. `enter` and `destroy` are routed but still stubs.
+**Phase 3 of 5.** `create` provisions a named sandbox and `enter` opens a shell inside it. `destroy` is routed but still a stub.
 
 | Phase | Capability | State |
 |-------|-----------|-------|
 | 0 | Container engine provisioned and verified | Done |
 | 1 | CLI skeleton, subcommand dispatch | Done |
 | 2 | `create` — build image, start container | Done |
-| 3 | `enter` — shell into a running sandbox | Planned |
+| 3 | `enter` — shell into a running sandbox | Done |
 | 4 | `destroy` — clean teardown | Planned |
 | 5 | Audit log of every lifecycle action | Planned |
 
@@ -46,11 +46,11 @@ docker run hello-world
 
 ```bash
 sandboxforge create <name>   # build image if needed, start a named sandbox
-sandboxforge enter <name>              # open a shell inside it
+sandboxforge enter <name>              # open a root shell inside it
 sandboxforge destroy <name>            # tear it down
 ```
 
-`enter` and `destroy` accept arguments and print a stub message — they don't operate on containers yet. Until `destroy` lands, tear a sandbox down with `docker rm -f <name>`.
+`destroy` accepts an argument and prints a stub message. Until it lands, tear a sandbox down with `docker rm -v -f <name>`. Leaving a sandbox is just `exit` — that closes the shell and returns you to the host. The sandbox keeps running until you destroy it.
 
 ---
 
