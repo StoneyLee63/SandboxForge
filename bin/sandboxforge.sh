@@ -37,6 +37,27 @@ enter_sandbox() {
     docker exec -it "$name" bash
 }
 
+destroy_sandbox() {
+    local name="$1"
+    if [[ -z "$name" ]]; then
+        echo "sandboxforge: destroy requires a sandbox name" >&2
+        return 1
+    fi
+    if ! docker ps -a --format '{{.Names}}' | grep -qx "$name"; then
+        echo "sandboxforge: no sandbox named '$name'" >&2
+        return 1
+    fi
+
+    local reply
+    read -r -p "Destroy sandbox '$name'? [y/N] " reply
+    if [[ "$reply" != "y" && "$reply" != "Y" ]]; then
+        echo "sandboxforge: cancelled"
+        return 0
+    fi
+    docker rm -v -f "$name" >/dev/null
+    echo "sandboxforge: destroyed '$name'"
+}
+
 main() {
     local cmd="${1:-}"
     shift || true
@@ -49,7 +70,7 @@ main() {
             enter_sandbox "${1:-}"
             ;;
         destroy)
-            echo "[destroy] would destroy sandbox: ${1:-<none>}"
+            destroy_sandbox "${1:-}"
             ;;
         *)
             echo "sandboxforge: unknown command '${cmd}'" >&2
