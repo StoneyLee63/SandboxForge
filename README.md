@@ -74,6 +74,23 @@ Both guard clauses (empty name, name already in use) run before any build or con
 
 ---
 
+## Audit log
+
+Every action writes a line to `~/.sandboxforge/audit.log`:
+
+```
+2026-09-09T15:50:37Z enter ghostbox refused
+2026-09-09T15:50:52Z create logtest2 ok
+2026-09-09T15:51:19Z destroy logtest2 cancelled
+```
+
+Four fields: UTC timestamp, action, sandbox name, result. `-` stands in where no name was given, so every line has the same shape.
+
+**Refusals are logged deliberately.** A success-only log records what the tool did; recording refusals is what makes attempted actions visible. Repeated refusals against names that don't exist is a pattern worth being able to see.
+
+The log lives outside the repository and outside every sandbox, so it survives both. It is a record, not tamper-evident evidence: it's writable by the user who generates it.
+
+---
 ## Scope
 
 Containers share the host kernel. Namespaces and cgroups restrict what a process can see and consume, which makes a container an effective **isolation boundary**: it keeps your test environment from colliding with your real system.
