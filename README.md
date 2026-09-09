@@ -14,7 +14,7 @@ Third in an operator trilogy alongside [StormForge](https://github.com/StoneyLee
 
 ## Status
 
-**Phase 4 of 5. v1 complete.** `create`, `enter`, and `destroy` all work end to end. Phase 5 adds the audit log.
+**Phase 5 of 5. Complete.** `create`, `enter`, and `destroy` all work end to end, and every action is recorded to an audit log.
 
 | Phase | Capability | State |
 |-------|-----------|-------|
@@ -23,7 +23,7 @@ Third in an operator trilogy alongside [StormForge](https://github.com/StoneyLee
 | 2 | `create`: build image, start container | Done |
 | 3 | `enter`: shell into a running sandbox | Done |
 | 4 | `destroy`: clean teardown | Done |
-| 5 | Audit log of every lifecycle action | Planned |
+| 5 | Audit log of every lifecycle action | Done |
 
 Beyond v1: `stop` / `start` to pause a sandbox without destroying it, `list` and `status` for visibility, and additional profiles.
 
